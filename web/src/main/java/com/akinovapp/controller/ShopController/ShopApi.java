@@ -5,6 +5,8 @@ import com.akinovapp.domain.entity.Shop;
 import com.akinovapp.service.responsepojo.ResponsePojo;
 import com.akinovapp.service.shopservice.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +26,8 @@ public class ShopApi {
     }
 
     //(2) Method to find shop by ID
-    @GetMapping("/getShop")
-    public ResponsePojo<Shop> getShopById(Long Id){
+    @GetMapping("/getShop/{Id}")
+    public ResponsePojo<Shop> getShopById(@PathVariable Long Id){
 
         return shopService.getShopById(Id);
     }
@@ -39,21 +41,24 @@ public class ShopApi {
 
     //(4) Method to search for a company based on certain products they sell...just trying it out
     @GetMapping("/searchShop")
-    public ResponsePojo<List<Shop>> searchShop (String companyName, String prodName, String country){
+    public ResponsePojo<Page<Shop>> searchShop (@RequestParam(name = "Akinova", required = false) String companyName,
+                                                @RequestParam(name = "shoe", required = false) String prodName,
+                                                @RequestParam(name = "Nigeria", required = false) String country,
+                                                Pageable pageable){
 
-        return shopService.searchShop(companyName, prodName, country);
+        return shopService.searchShop(companyName, prodName, country, pageable);
     }
 
     //(5) Method to update Shop
     @PutMapping("/update")
-    public ResponsePojo<Shop> update(ShopDto shopDto){
+    public ResponsePojo<Shop> update(@RequestBody ShopDto shopDto){
 
         return shopService.update(shopDto);
     }
 
     //(6) Method to delete shop
     @DeleteMapping("/deleteShop")
-    public ResponsePojo<String> deleteShop(ShopDto shopDto){
+    public ResponsePojo<String> deleteShop(@RequestBody ShopDto shopDto){
 
         return shopService.deleteShop(shopDto);
     }

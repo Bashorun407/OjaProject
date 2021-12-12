@@ -5,6 +5,8 @@ import com.akinovapp.domain.entity.Product;
 import com.akinovapp.service.productservice.ProductService;
 import com.akinovapp.service.responsepojo.ResponsePojo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,9 +45,11 @@ public class ProductApi {
 
     //(4) Method to search for Products based on given criteria
     @GetMapping("/search/item")
-    public ResponsePojo<List<Product>> searchProduct( @RequestParam String item, @RequestParam Long num){
+    public ResponsePojo<Page<Product>> searchProduct(@RequestParam(name = "item", required = false) String item,
+                                                     @RequestParam(name = "productNumber", required = false) Long productNum,
+                                                     Pageable pageable){
 
-        return productService.searchProduct(item, num);
+        return productService.searchProduct(item, productNum, pageable);
     }
 
     //(5) Method to update Product

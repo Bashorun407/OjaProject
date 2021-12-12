@@ -5,6 +5,8 @@ import com.akinovapp.domain.entity.Customer;
 import com.akinovapp.service.customerservice.CustomerService;
 import com.akinovapp.service.responsepojo.ResponsePojo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,9 +43,12 @@ public class CustomerApi {
 
     //(4) Search with QueryDSL
     @GetMapping("/search")
-    public ResponsePojo<List<Customer>> searchCustomers(@RequestParam String firstName, @RequestParam String lastName, @RequestParam String country){
+    public ResponsePojo<Page<Customer>> searchCustomers(@RequestParam(name = "firstName", required = false) String firstName,
+                                                        @RequestParam(name = "lastName", required = false) String lastName,
+                                                        @RequestParam(name = "country", required = false) String country,
+                                                        Pageable pageable){
 
-        return customerService.searchCustomers(firstName, lastName, country);
+        return customerService.searchCustomers(firstName, lastName, country, pageable);
     }
 
 

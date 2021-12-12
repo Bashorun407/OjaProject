@@ -12,6 +12,9 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -108,7 +111,7 @@ public class ShopService {
     }
 
     //(4) Method to search for a company based on certain products they sell...just trying it out
-    public ResponsePojo<List<Shop>> searchShop (String companyName, String prodName, String country){
+    public ResponsePojo<Page<Shop>> searchShop (String companyName, String prodName, String country, Pageable pageable){
 
         QShop qShop = QShop.shop;
         BooleanBuilder predicate = new BooleanBuilder();
@@ -125,12 +128,15 @@ public class ShopService {
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Shop> jpaQuery = jpaQueryFactory.selectFrom(qShop)
                 .where(predicate.and(qShop.deletedStatus.eq(false)))
-                .orderBy(qShop.Id.asc());
+                .orderBy(qShop.Id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
 
+        Page<Shop> shopPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
         List<Shop> shopList = jpaQuery.fetch();
 
-        ResponsePojo<List<Shop>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(shopList);
+        ResponsePojo<Page<Shop>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(shopPage);
         responsePojo.setMessage("Here is the list of shops");
 
         return responsePojo;

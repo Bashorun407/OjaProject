@@ -10,6 +10,10 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -89,7 +93,7 @@ public class ProductService {
     }
 
     //(4) Method to search for Products based on given criteria
-    public ResponsePojo<List<Product>> searchProduct(String item, Long num){
+    public ResponsePojo<Page<Product>> searchProduct(String item, Long productNum, Pageable pageable){
         QProduct qProduct = QProduct.product;
         BooleanBuilder predicate = new BooleanBuilder();
 
@@ -99,19 +103,22 @@ public class ProductService {
         if(StringUtils.hasText(item))
             predicate.and(qProduct.companyName.likeIgnoreCase("%s" + item + "%s"));
 
-        if(ObjectUtils.isEmpty(num))
-            predicate.and(qProduct.productNumber.eq(num));
+        if(ObjectUtils.isEmpty(productNum))
+            predicate.and(qProduct.productNumber.eq(productNum));
 
 
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Product> jpaQuery = jpaQueryFactory.selectFrom(qProduct)
                 .where(predicate.and(qProduct.deleteStatus.eq(false)))
-                .orderBy(qProduct.Id.asc());
+                .orderBy(qProduct.Id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
 
+        Page<Product> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
         List<Product> result = jpaQuery.fetch();
 
-        ResponsePojo<List<Product>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(result);
+        ResponsePojo<Page<Product>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(productPage);
         responsePojo.setMessage("Items Search successful!!");
 
         return  responsePojo;

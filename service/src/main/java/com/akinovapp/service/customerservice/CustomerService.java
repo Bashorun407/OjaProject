@@ -10,6 +10,10 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -89,7 +93,7 @@ public class CustomerService {
     }
 
     //(4) Search with QueryDSL
-    public ResponsePojo<List<Customer>> searchCustomers(String firstName, String lastName, String country){
+    public ResponsePojo<Page<Customer>> searchCustomers(String firstName, String lastName, String country,Pageable pageable){
 
         QCustomer qCustomer = QCustomer.customer;
         BooleanBuilder predicate = new BooleanBuilder();
@@ -108,12 +112,15 @@ public class CustomerService {
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Customer> jpaQuery = jpaQueryFactory.selectFrom(qCustomer)
                 .where(predicate.and(qCustomer.deletedStatus.eq(false)))
-                .orderBy(qCustomer.Id.asc());
+                .orderBy(qCustomer.Id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
 
-        List<Customer> customerList = jpaQuery.fetch();
+        Page<Customer> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
+       // List<Customer> customerList = jpaQuery.fetch();
 
-        ResponsePojo<List<Customer>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(customerList);
+        ResponsePojo<Page<Customer>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(productPage);
         responsePojo.setMessage("List found!!");
 
         return responsePojo;
