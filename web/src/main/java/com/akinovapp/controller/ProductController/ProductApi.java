@@ -17,12 +17,14 @@ public class ProductApi {
     @Autowired
     private ProductService productService;
 
-    //(1) Method to create a Product
-    @PostMapping("/createProduct")
-    public ResponsePojo<Product> createProduct(@RequestBody ProductDto productDto){
-
-        return productService.createProduct(productDto);
-    }
+    //***** METHOD 1 IS NOT NEEDED BECAUSE SERVICE HAS BEEN INITIATED IN THE SHOPAPI CLASS
+//
+//    //(1) Method to create a Product
+//    @PostMapping("/createProduct")
+//    public ResponsePojo<Product> createProduct(@RequestBody ProductDto productDto){
+//
+//        return productService.createProduct(productDto);
+//    }
 
 
     //(2) Method to get a specific Product by Id
@@ -39,12 +41,12 @@ public class ProductApi {
         return productService.getAllProducts();
     }
 
-//    //(4) Method to search for Products based on given criteria
-//    @GetMapping("/search/item")
-//    public ResponsePojo<List<Product>> searchProduct( @RequestParam String item, @RequestParam Long num){
-//
-//        return productService.searchProduct(item, num);
-//    }
+    //(4) Method to search for Products based on given criteria
+    @GetMapping("/search/item")
+    public ResponsePojo<List<Product>> searchProduct( @RequestParam String item, @RequestParam Long num){
+
+        return productService.searchProduct(item, num);
+    }
 
     //(5) Method to update Product
     @PutMapping("/update")

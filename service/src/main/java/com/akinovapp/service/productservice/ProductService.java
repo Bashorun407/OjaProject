@@ -30,31 +30,32 @@ public class ProductService {
 
     /*
        **** PRODUCT HAS BEEN INITIATED IN THE SHOP CLASS ****
+       ***THAT IS WHY METHOD 1 WAS COMMENTED OUT****
      */
 
-    //(1) Method to create a Product
-    public ResponsePojo<Product> createProduct(ProductDto productDto){
-
-        if(!StringUtils.hasText(productDto.getProductName()))
-            throw new ApiRequestException("Product requires a name to be created....");
-
-        Product product = new Product();
-        product.setProductName(productDto.getProductName());//*
-        product.setProductNumber(new Date().getTime());
-        product.setPrice(productDto.getPrice());//*
-        product.setQuantity(productDto.getQuantity());//*
-        product.setCompanyName(productDto.getCompanyName());//*
-        product.setDateListed(new Date());
-        product.setDeleteStatus(false);
-
-        productReppo.save(product);
-
-        ResponsePojo<Product> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(product);
-        responsePojo.setMessage("Product successfully created");
-
-        return responsePojo;
-    }
+//    //(1) Method to create a Product
+//    public ResponsePojo<Product> createProduct(ProductDto productDto){
+//
+//        if(!StringUtils.hasText(productDto.getProductName()))
+//            throw new ApiRequestException("Product requires a name to be created....");
+//
+//        Product product = new Product();
+//        product.setProductName(productDto.getProductName());//*
+//        product.setProductNumber(new Date().getTime());
+//        product.setPrice(productDto.getPrice());//*
+//        product.setQuantity(productDto.getQuantity());//*
+//        product.setCompanyName(productDto.getCompanyName());//*
+//        product.setDateListed(new Date());
+//        product.setDeleteStatus(false);
+//
+//        productReppo.save(product);
+//
+//        ResponsePojo<Product> responsePojo = new ResponsePojo<>();
+//        responsePojo.setData(product);
+//        responsePojo.setMessage("Product successfully created");
+//
+//        return responsePojo;
+//    }
 
 
     //(2) Method to get a specific Product by Id

@@ -59,7 +59,7 @@ public class ShopService {
         shop.setPhoneNumber(shopDto.getPhoneNumber());
 
         shop.setDateListed(new Date());
-        product.setDateListed(shop.getDateListed());
+        product.setDateListed(new Date());
 
         shop.setCountry(shopDto.getCountry());
         shop.setDeletedStatus(false);
