@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ShopReppo extends JpaRepository<Shop, Long> {
 
     Optional<Shop> findShopByCompanyName(String companyName);
+    Optional<Shop> findShopByPhoneNumber(Long phoneNumber);
 }

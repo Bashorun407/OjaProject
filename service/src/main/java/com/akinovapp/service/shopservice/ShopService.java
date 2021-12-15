@@ -102,18 +102,21 @@ public class ShopService {
 
         List<Shop> allShops = shopReppo.findAll();
 
+        //To filter and collect only those shops whose delete status is false
+        List<Shop> filteredShops = allShops.stream().filter(x-> x.getDeletedStatus()==false).collect(Collectors.toList());
+
         if(allShops.isEmpty())
             throw new ApiRequestException("The shops list is empty");
 
         ResponsePojo<List<Shop>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(allShops);
+        responsePojo.setData(filteredShops);
         responsePojo.setMessage("List of all Shops");
 
         return responsePojo;
     }
 
     //(4) Method to search for a company based on certain products they sell...just trying it out
-    public ResponsePojo<Page<Shop>> searchShop (String companyName, String prodName, String country, Pageable pageable){
+    public ResponsePojo<List<Shop>> searchShop (String companyName, String prodName, String country, Pageable pageable){
 
         QShop qShop = QShop.shop;
         BooleanBuilder predicate = new BooleanBuilder();
@@ -130,15 +133,16 @@ public class ShopService {
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Shop> jpaQuery = jpaQueryFactory.selectFrom(qShop)
                 .where(predicate.and(qShop.deletedStatus.eq(false)))
-                .orderBy(qShop.Id.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+              .orderBy(qShop.Id.asc());
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize());
 
-        Page<Shop> shopPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
+        //This Page<Shop> is not working as it should...that is why I commented it out.
+       // Page<Shop> shopPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
         List<Shop> shopList = jpaQuery.fetch();
 
-        ResponsePojo<Page<Shop>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(shopPage);
+        ResponsePojo<List<Shop>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(shopList);
         responsePojo.setMessage("Here is the list of shops");
 
         return responsePojo;
@@ -147,8 +151,8 @@ public class ShopService {
     //(5) Method to update Shop
     public ResponsePojo<Shop> update(ShopDto shopDto){
 
-        Optional<Shop> findShop1 = shopReppo.findById(shopDto.getId());
-        findShop1.orElseThrow(()->new ApiRequestException("There is no Shop with this ID."));
+        Optional<Shop> findShop1 = shopReppo.findShopByPhoneNumber(shopDto.getPhoneNumber());
+        findShop1.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this phone number: %s.", shopDto.getPhoneNumber())));
 
         Optional<Shop> findShop2 = shopReppo.findShopByCompanyName(shopDto.getCompanyName());
         findShop2.orElseThrow(()->new ApiRequestException("There is Shop with this company name."));
@@ -160,8 +164,12 @@ public class ShopService {
         if(shop1 != shop2)
             throw  new ApiRequestException("The details entered are for different Customers.");
 
-        shop1.setCompanyName(shopDto.getCompanyName());
-        shop1.setPhoneNumber(shopDto.getPhoneNumber());
+        //Since we are searching shops with these two fields(CompanyName and PhoneNumber), it is not wise to edit them
+//        shop1.setCompanyName(shopDto.getCompanyName());
+//        shop1.setPhoneNumber(shopDto.getPhoneNumber());
+        shop1.setProductName(shopDto.getProductName());
+        shop1.setPrice(shopDto.getPrice());
+        shop1.setQuantity(shopDto.getQuantity());
         shop1.setCountry(shopDto.getCountry());
 
         shopReppo.save(shop1);//Saving the detail into the database
@@ -176,11 +184,11 @@ public class ShopService {
    //(6) Method to delete shop
     public ResponsePojo<String> deleteShop(ShopDto shopDto){
 
-        Optional<Shop> findShop1 = shopReppo.findById(shopDto.getId());
-        findShop1.orElseThrow(()->new ApiRequestException("There is no Shop with this ID."));
+        Optional<Shop> findShop1 = shopReppo.findShopByPhoneNumber(shopDto.getPhoneNumber());
+        findShop1.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this Phone Number: %s", shopDto.getPhoneNumber())));
 
         Optional<Shop> findShop2 = shopReppo.findShopByCompanyName(shopDto.getCompanyName());
-        findShop2.orElseThrow(()->new ApiRequestException("There is Shop with this company name."));
+        findShop2.orElseThrow(()->new ApiRequestException(String.format("There is Shop with this company name : %s", shopDto.getCompanyName())));
 
         Shop shop1 = findShop1.get();
         Shop shop2 = findShop2.get();
