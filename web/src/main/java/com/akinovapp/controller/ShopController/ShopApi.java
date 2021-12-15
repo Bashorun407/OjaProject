@@ -20,7 +20,7 @@ public class ShopApi {
 
     //(1) Method to create shop
     @PostMapping("/createShop")
-    public ResponsePojo<Shop> createShop(ShopDto shopDto) {
+    public ResponsePojo<Shop> createShop(@RequestBody ShopDto shopDto) {
 
         return shopService.createShop(shopDto);
     }

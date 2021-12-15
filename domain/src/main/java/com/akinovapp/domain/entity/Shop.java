@@ -9,21 +9,21 @@ import java.util.Date;
 @Entity(name = "Oja-Shop")
 public class Shop {
 
-    @javax.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "Shop_ID")
+    @Column(name = "Shop_ID", unique = true)
     private Long Id;
 
-    @Column(name = "Company_Name")
+    @Column(name = "Company_Name", unique = true, nullable = false)
     private String companyName;
 
-    @Column(name = "Product_Name")
+    @Column(name = "Product_Name", nullable = false)
     private String productName;
 
-    @Column(name = "Price")
+    @Column(name = "Price", nullable = false)
     private Long price;
 
-    @Column(name = "Quantity_Available")
+    @Column(name = "Quantity_Available", nullable = false)
     private Long quantity;
 
     @Column(name = "Phone_Number")

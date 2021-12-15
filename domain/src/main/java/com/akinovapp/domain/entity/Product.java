@@ -11,7 +11,7 @@ public class Product {
 
     @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "Product_ID")
+    @Column(name = "Product_ID", unique = true)
     private Long Id;
 
     @Column(name = "Product_Name")

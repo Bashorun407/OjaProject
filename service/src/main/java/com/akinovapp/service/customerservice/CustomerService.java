@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.EntityManager;
 import java.util.Date;
@@ -66,7 +67,7 @@ public class CustomerService {
 
         Customer cust = customerOptional.get();
 
-        if(cust.getDeletedStatus()==false)
+        if(cust.getDeletedStatus()!=false)
             throw new ApiRequestException("The item requested has been deleted.");
 
         ResponsePojo<Customer> responsePojo = new ResponsePojo<>();
@@ -116,11 +117,12 @@ public class CustomerService {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        Page<Customer> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
-       // List<Customer> customerList = jpaQuery.fetch();
+        Page<Customer> customerPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.fetchCount());
+
+        // List<Customer> customerList = jpaQuery.fetch();
 
         ResponsePojo<Page<Customer>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(productPage);
+        responsePojo.setData(customerPage);
         responsePojo.setMessage("List found!!");
 
         return responsePojo;
@@ -129,11 +131,11 @@ public class CustomerService {
     //(5) Updating Customers detail
     public ResponsePojo<Customer> updateCustomer(CustomerDto customerDto){
 
-        Optional<Customer> findCustomer1 = customerReppo.findById(customerDto.getId());
-        findCustomer1.orElseThrow(()->new ApiRequestException("There is no customer with this ID."));
+        Optional<Customer> findCustomer1 = customerReppo.findByLastName(customerDto.getLastName());
+        findCustomer1.orElseThrow(()->new ApiRequestException("There is no customer with this Last name."));
 
-        Optional<Customer> findCustomer2 = customerReppo.findByLastName(customerDto.getLastName());
-        findCustomer2.orElseThrow(()->new ApiRequestException("There is no Customer with this last name."));
+        Optional<Customer> findCustomer2 = customerReppo.findByEmail(customerDto.getEmail());
+        findCustomer2.orElseThrow(()->new ApiRequestException("There is no Customer with this email."));
 
         Customer custom1 = findCustomer1.get();
         Customer custom2 = findCustomer2.get();
@@ -159,32 +161,23 @@ public class CustomerService {
     //(6) Method to delete a customer's detail...its not really going to delete though.
     public String deleteCustomer(CustomerDto customerDto){
 
-        //Finding Customer by ID
-        Optional<Customer> findCustomer1 = customerReppo.findById(customerDto.getId());
-        findCustomer1.orElseThrow(()->new ApiRequestException("There is no Customer with this Id."));
-
-        //Finding Customer by first name
-        Optional<Customer> findCustomer2 = customerReppo.findByFirstName(customerDto.getFirstName());
-        findCustomer2.orElseThrow(()->new ApiRequestException(" There is no Customer with this first name"));
 
         //Finding Customer by last name
         Optional<Customer> findCustomer3 = customerReppo.findByLastName(customerDto.getLastName());
         findCustomer3.orElseThrow(()->new ApiRequestException(" There is no Customer with this last name."));
 
         //Finding Customer by country
-        Optional<Customer> findCustomer4 = customerReppo.findByCountry(customerDto.getCountry());
-        findCustomer4.orElseThrow(()->new ApiRequestException(" There is no Customer with this country."));
+        Optional<Customer> findCustomer4 = customerReppo.findByEmail(customerDto.getEmail());
+        findCustomer4.orElseThrow(()->new ApiRequestException(" There is no Customer with this email."));
 
-        Customer c1 = findCustomer1.get();
-        Customer c2 = findCustomer2.get();
         Customer c3 = findCustomer3.get();
         Customer c4 = findCustomer4.get();
 
-        if(c1!=c2 && c3 != c4)
+        if(c3 != c4)
             throw new ApiRequestException("The details entered are not for the same Customer.");
 
-        c1.setDeletedStatus(true);
-        customerReppo.save(c1);
+        c3.setDeletedStatus(true);
+        customerReppo.save(c3);
 
         return "Customer deleted";
     }

@@ -2,6 +2,7 @@ package com.akinovapp.service.shopservice;
 
 import com.akinovapp.domain.dao.ShopDto;
 import com.akinovapp.domain.entity.Product;
+import com.akinovapp.domain.entity.QProduct;
 import com.akinovapp.domain.entity.QShop;
 import com.akinovapp.domain.entity.Shop;
 import com.akinovapp.service.exception.ApiRequestException;
@@ -23,6 +24,7 @@ import javax.persistence.EntityManager;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ShopService {
@@ -39,25 +41,25 @@ public class ShopService {
     //(1) Method to create shop
     public ResponsePojo<Shop> createShop(ShopDto shopDto){
 
-        if((shopDto.getCompanyName().isEmpty()) && (shopDto.getProductName().isEmpty()))
+        if(!(StringUtils.hasText(shopDto.getCompanyName())) && !(StringUtils.hasText(shopDto.getProductName())))
             throw new ApiRequestException("Company-name and Product-name is required to create a Shop...ensure to input both.");
 
         Shop shop = new Shop();//Shop Object
         Product product = new Product();//Product Object
 
         shop.setCompanyName(shopDto.getCompanyName());
-        product.setCompanyName(shop.getCompanyName());
+        product.setCompanyName(shopDto.getCompanyName());
 
         shop.setProductName(shopDto.getProductName());
-        product.setProductName(shop.getProductName());
+        product.setProductName(shopDto.getProductName());
 
         product.setProductNumber(new Date().getTime());
 
         shop.setPrice(shopDto.getPrice());
-        product.setPrice(shop.getPrice());
+        product.setPrice(shopDto.getPrice());
 
         shop.setQuantity(shopDto.getQuantity());
-        product.setQuantity(shop.getQuantity());
+        product.setQuantity(shopDto.getQuantity());
 
         shop.setPhoneNumber(shopDto.getPhoneNumber());
 
@@ -69,7 +71,7 @@ public class ShopService {
         product.setDeleteStatus(false);
 
         shopReppo.save(shop); //Saving shop details into its repository
-        productReppo.save(product);  //Saivng product into its repository
+        productReppo.save(product);  //Saving product into its repository
 
         ResponsePojo<Shop> responsePojo = new ResponsePojo<>();
         responsePojo.setData(shop);
@@ -188,6 +190,19 @@ public class ShopService {
             throw  new ApiRequestException("The details entered are for different Customers.");
 
         shop1.setDeletedStatus(true);//...does not really delete the shop....but only changes the Shop's deletedStatus
+
+        //To set the delete status of all products in the deleted shop as deleted too....using QUERY DSL
+        QProduct qProduct = QProduct.product;
+
+        JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
+        JPAQuery<Product> jpaQuery = jpaQueryFactory.selectFrom(qProduct)
+                        .where(qProduct.companyName.eq(shop2.getCompanyName()));
+
+        List<Product> companyProducts = jpaQuery.fetch();
+        companyProducts.stream().map(x->{
+            x.setDeleteStatus(true);
+            productReppo.save(x);//To save the change into the productReppo repository
+       return x; });//...I dont know if this will work...I want to be able to set the deletedStatus of each record in this category as false
 
         shopReppo.save(shop1);//Saving the detail into the database
 

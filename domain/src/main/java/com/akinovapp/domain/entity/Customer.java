@@ -11,19 +11,19 @@ public class Customer {
 
     @javax.persistence.Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "Customer_ID")
+    @Column(name = "Customer_ID", unique = true, nullable = false)
     private Long Id;
 
-    @Column(name = "First_Name")
+    @Column(name = "First_Name", nullable = false)
     private  String firstName;
 
-    @Column(name = "Last_Name")
+    @Column(name = "Last_Name", nullable = false)
     private  String lastName;
 
-    @Column(name = "Email_Address")
+    @Column(name = "Email_Address", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "Phone_Number")
+    @Column(name = "Phone_Number", unique = true)
     private Long phoneNumber;
 
     @Column(name = "Account_Balance")
