@@ -21,12 +21,12 @@ public class TransactionApi {
     public ResponsePojo<Transaction> buyItem(@RequestParam String productName,
                                              @RequestParam String companyName,
                                              @RequestParam Long quantity,
-                                             @RequestParam Long customerId,
+                                             @RequestParam String lastName,
                                              @RequestParam String email
                                                 )
     {
 
-        return transactionService.buyItem(productName, companyName, quantity, customerId, email);
+        return transactionService.buyItem(productName, companyName, quantity, lastName, email);
     }
 
 

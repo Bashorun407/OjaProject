@@ -13,6 +13,8 @@ public class CustomerDto {
 
     private  String lastName;
 
+    private Long customerNumber;
+
     private String email;
 
     private Long phoneNumber;

@@ -37,7 +37,7 @@ public class TransactionService {
     private EntityManager entityManager;
 
     //(1) Method to select and purchase Item(Products)
-    public ResponsePojo<Transaction> buyItem(String productName, String companyName, Long quantity, Long customerId, String email){
+    public ResponsePojo<Transaction> buyItem(String productName, String companyName, Long quantity, String lastName, String email){
 
         //Getting Product Detail from Product Repository
         Optional<Product> findProduct = productReppo.findProductByProductNameAndCompanyName(productName, companyName);
@@ -47,10 +47,13 @@ public class TransactionService {
         Optional<Shop> findShop = shopReppo.findShopByCompanyName(companyName);
         findShop.orElseThrow(()-> new ApiRequestException("There is no Shop with this name."));
 
-        //Getting Customer detail from Customer Repository through customerId
-        Optional<Customer> findCustomer = customerReppo.findById(customerId);
-        findCustomer.orElseThrow(()-> new ApiRequestException("There is no Customer with this ID"));
+//        //Getting Customer detail from Customer Repository through customerId...but this gives a null pointer exception all the time
+//        Optional<Customer> findCustomer = customerReppo.findById(customerId);
+//        findCustomer.orElseThrow(()-> new ApiRequestException("There is no Customer with this ID"));
 
+        //Getting Customer detail from Customer Repository through customer's Last name.
+        Optional<Customer> findCustomer3 = customerReppo.findByLastName(lastName);
+        findCustomer3.orElseThrow(()-> new ApiRequestException("There is no Customer with this last name."));
         //Getting Customer detail from Customer Repository through customerId
         Optional<Customer> findCustomer2 = customerReppo.findByEmail(email);
         findCustomer2.orElseThrow(()-> new ApiRequestException("There is no Customer with this Email."));
@@ -58,32 +61,32 @@ public class TransactionService {
 
         //Creating objects from the Optionals and assigning values to new variables
         Product product = findProduct.get();
-        Customer customer = findCustomer.get();
+        Customer customer3 = findCustomer3.get();
         Customer customer2 = findCustomer2.get();
 
         //Checking that the details entered for Customer is correct and is for the same Object
-        if(customer != customer2)
+        if(customer3 != customer2)
             throw new ApiRequestException("The Id and Email entered are for different Customers.");
 
         Shop shop = findShop.get();
-        Long balance = customer.getAccountBalance();
+        Long balance = customer3.getAccountBalance();
         Long totalCost = quantity * product.getPrice();
 
         Transaction transact = new Transaction();
         transact.setProductName(product.getProductName());
         transact.setProductNumber(product.getProductNumber());
         transact.setCompanyName(shop.getCompanyName());
-        transact.setCustomerId(customer.getId());
+        transact.setCustomerId(customer3.getId());
         transact.setAmount(totalCost);
 
         if(balance >=totalCost){
 
-            transact.setPaymentStatus(false);
+            transact.setPaymentStatus(true);
             transact.setTransactionNumber(new Date().getTime());
             transact.setTransactionDate(new Date());
 
-            customer.setAccountBalance(balance - totalCost);
-            customerReppo.save(customer);
+            customer3.setAccountBalance(balance - totalCost);
+            customerReppo.save(customer3);
 
             //Effecting changes in Quantity of Product available in Shop
             shop.setQuantity(shop.getQuantity() - quantity);

@@ -93,7 +93,7 @@ public class ProductService {
     }
 
     //(4) Method to search for Products based on given criteria
-    public ResponsePojo<Page<Product>> searchProduct(String item, Long productNum, Pageable pageable){
+    public ResponsePojo<List<Product>> searchProduct(String item, Long productNum, Pageable pageable){
         QProduct qProduct = QProduct.product;
         BooleanBuilder predicate = new BooleanBuilder();
 
@@ -114,11 +114,11 @@ public class ProductService {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        Page<Product> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
+        //Page<Product> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
         List<Product> result = jpaQuery.fetch();
 
-        ResponsePojo<Page<Product>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(productPage);
+        ResponsePojo<List<Product>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(result);
         responsePojo.setMessage("Items Search successful!!");
 
         return  responsePojo;
@@ -128,8 +128,8 @@ public class ProductService {
     //(5) Method to update Product
     public ResponsePojo<Product> updateProduct(ProductDto productDto){
 
-        Optional<Product> findProduct1 = productReppo.findById(productDto.getId());
-        findProduct1.orElseThrow(()->new ApiRequestException(String.format("Product with this ID: %s, not found!", productDto.getId())));
+        Optional<Product> findProduct1 = productReppo.findByProductName(productDto.getProductName());
+        findProduct1.orElseThrow(()->new ApiRequestException(String.format("Product with this name: %s, not found!", productDto.getProductName())));
 
         Optional<Product> findProduct2 = productReppo.findProductByProductNumber(productDto.getProductNumber());
         findProduct2.orElseThrow(()-> new ApiRequestException(String.format("Product with this Product-Number: %s not found", productDto.getProductNumber())));
@@ -143,7 +143,7 @@ public class ProductService {
 
 
         Product prod = findProduct1.get();
-        prod.setProductName(productDto.getProductName());
+        //prod.setProductName(productDto.getProductName());
         prod.setPrice(productDto.getPrice());
         prod.setQuantity(productDto.getQuantity());
         prod.setCompanyName(productDto.getCompanyName());

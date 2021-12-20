@@ -20,6 +20,9 @@ public class Customer {
     @Column(name = "Last_Name", nullable = false)
     private  String lastName;
 
+    @Column(name = "Customer_Number", unique = true, nullable = false)
+    private Long customerNumber;
+
     @Column(name = "Email_Address", unique = true, nullable = false)
     private String email;
 

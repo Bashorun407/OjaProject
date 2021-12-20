@@ -10,13 +10,12 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.persistence.EntityManager;
 import java.util.Date;
@@ -42,6 +41,7 @@ public class CustomerService {
         Customer customer = new Customer();
         customer.setFirstName(customerDto.getFirstName());
         customer.setLastName(customerDto.getLastName());
+        customer.setCustomerNumber(new Date().getTime());
         customer.setEmail(customerDto.getEmail());
         customer.setPhoneNumber(customerDto.getPhoneNumber());
         customer.setAccountBalance(customerDto.getAccountBalance());
@@ -94,7 +94,7 @@ public class CustomerService {
     }
 
     //(4) Search with QueryDSL
-    public ResponsePojo<Page<Customer>> searchCustomers(String firstName, String lastName, String country,Pageable pageable){
+    public ResponsePojo<List<Customer>> searchCustomers(String firstName, String lastName, Long customerNumber,  String country,Pageable pageable){
 
         QCustomer qCustomer = QCustomer.customer;
         BooleanBuilder predicate = new BooleanBuilder();
@@ -110,6 +110,9 @@ public class CustomerService {
         if(StringUtils.hasText(country))
             predicate.and(qCustomer.country.likeIgnoreCase("%s" + country + "%s"));
 
+        if(!ObjectUtils.isEmpty(customerNumber))
+            predicate.and(qCustomer.customerNumber.eq(customerNumber));
+
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Customer> jpaQuery = jpaQueryFactory.selectFrom(qCustomer)
                 .where(predicate.and(qCustomer.deletedStatus.eq(false)))
@@ -117,12 +120,12 @@ public class CustomerService {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        Page<Customer> customerPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.fetchCount());
+       // Page<Customer> customerPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.fetchCount());
 
-        // List<Customer> customerList = jpaQuery.fetch();
+        List<Customer> customerList = jpaQuery.fetch();
 
-        ResponsePojo<Page<Customer>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(customerPage);
+        ResponsePojo<List<Customer>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(customerList);
         responsePojo.setMessage("List found!!");
 
         return responsePojo;
@@ -131,8 +134,8 @@ public class CustomerService {
     //(5) Updating Customers detail
     public ResponsePojo<Customer> updateCustomer(CustomerDto customerDto){
 
-        Optional<Customer> findCustomer1 = customerReppo.findByLastName(customerDto.getLastName());
-        findCustomer1.orElseThrow(()->new ApiRequestException("There is no customer with this Last name."));
+        Optional<Customer> findCustomer1 = customerReppo.findByCustomerNumber(customerDto.getCustomerNumber());
+        findCustomer1.orElseThrow(()->new ApiRequestException("There is no customer with this Customer Number."));
 
         Optional<Customer> findCustomer2 = customerReppo.findByEmail(customerDto.getEmail());
         findCustomer2.orElseThrow(()->new ApiRequestException("There is no Customer with this email."));
@@ -145,7 +148,8 @@ public class CustomerService {
             throw  new ApiRequestException("The details entered are for different Customers.");
 
         custom1.setFirstName(customerDto.getFirstName());
-        custom1.setEmail(customerDto.getEmail());
+        custom1.setLastName(customerDto.getLastName());
+        //custom1.setEmail(customerDto.getEmail());
         custom1.setPhoneNumber(customerDto.getPhoneNumber());
         custom1.setCountry(customerDto.getCountry());
 
@@ -163,8 +167,8 @@ public class CustomerService {
 
 
         //Finding Customer by last name
-        Optional<Customer> findCustomer3 = customerReppo.findByLastName(customerDto.getLastName());
-        findCustomer3.orElseThrow(()->new ApiRequestException(" There is no Customer with this last name."));
+        Optional<Customer> findCustomer3 = customerReppo.findByCustomerNumber(customerDto.getCustomerNumber());
+        findCustomer3.orElseThrow(()->new ApiRequestException(" There is no Customer with this Customer Number."));
 
         //Finding Customer by country
         Optional<Customer> findCustomer4 = customerReppo.findByEmail(customerDto.getEmail());

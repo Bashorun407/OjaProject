@@ -43,12 +43,13 @@ public class CustomerApi {
 
     //(4) Search with QueryDSL
     @GetMapping("/search")
-    public ResponsePojo<Page<Customer>> searchCustomers(@RequestParam(name = "firstName", required = false) String firstName,
+    public ResponsePojo<List<Customer>> searchCustomers(@RequestParam(name = "firstName", required = false) String firstName,
                                                         @RequestParam(name = "lastName", required = false) String lastName,
+                                                        @RequestParam(name = "ustomerNumber", required = false) Long customerNumber,
                                                         @RequestParam(name = "country", required = false) String country,
                                                         Pageable pageable){
 
-        return customerService.searchCustomers(firstName, lastName, country, pageable);
+        return customerService.searchCustomers(firstName, lastName, customerNumber, country, pageable);
     }
 
 

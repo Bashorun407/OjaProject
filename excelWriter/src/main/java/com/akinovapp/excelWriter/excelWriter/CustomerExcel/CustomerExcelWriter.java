@@ -25,7 +25,7 @@ public class CustomerExcelWriter {
         try {
             List<Customer> customerList = customerReppo.findAll();
 
-            String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\CustomerExcel\\Book1.xlsx";
+            String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\excelWriter\\CustomerExcel\\Book1.xlsx";
 
             //To check that the filePath is valid
             if(!StringUtils.hasText(filePath))

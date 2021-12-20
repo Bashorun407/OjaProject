@@ -14,11 +14,14 @@ public class Shop {
     @Column(name = "Shop_ID", unique = true)
     private Long Id;
 
-    @Column(name = "Company_Name", unique = true, nullable = false)
+    @Column(name = "Company_Name", nullable = false)
     private String companyName;
 
     @Column(name = "Product_Name", nullable = false)
     private String productName;
+
+    @Column(name = "Shop_Number", unique = true, nullable = false)
+    private Long shopNumber;
 
     @Column(name = "Price", nullable = false)
     private Long price;

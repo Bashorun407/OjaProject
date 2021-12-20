@@ -9,4 +9,5 @@ public interface ShopReppo extends JpaRepository<Shop, Long> {
 
     Optional<Shop> findShopByCompanyName(String companyName);
     Optional<Shop> findShopByPhoneNumber(Long phoneNumber);
+    Optional<Shop> findByShopNumber(Long shopNumber);
 }

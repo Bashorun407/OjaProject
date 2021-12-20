@@ -53,6 +53,8 @@ public class ShopService {
         shop.setProductName(shopDto.getProductName());
         product.setProductName(shopDto.getProductName());
 
+        shop.setShopNumber(new Date().getTime());
+
         product.setProductNumber(new Date().getTime());
 
         shop.setPrice(shopDto.getPrice());
@@ -116,7 +118,7 @@ public class ShopService {
     }
 
     //(4) Method to search for a company based on certain products they sell...just trying it out
-    public ResponsePojo<List<Shop>> searchShop (String companyName, String prodName, String country, Pageable pageable){
+    public ResponsePojo<List<Shop>> searchShop (String companyName, String prodName, Long shopNumber, String country, Pageable pageable){
 
         QShop qShop = QShop.shop;
         BooleanBuilder predicate = new BooleanBuilder();
@@ -129,6 +131,9 @@ public class ShopService {
 
         if(StringUtils.hasText(country))
             predicate.and(qShop.country.likeIgnoreCase("%s" + country + "%s"));
+
+        if(!ObjectUtils.isEmpty(shopNumber))
+            predicate.and(qShop.shopNumber.eq(shopNumber));
 
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Shop> jpaQuery = jpaQueryFactory.selectFrom(qShop)
@@ -151,8 +156,8 @@ public class ShopService {
     //(5) Method to update Shop
     public ResponsePojo<Shop> update(ShopDto shopDto){
 
-        Optional<Shop> findShop1 = shopReppo.findShopByPhoneNumber(shopDto.getPhoneNumber());
-        findShop1.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this phone number: %s.", shopDto.getPhoneNumber())));
+        Optional<Shop> findShop1 = shopReppo.findByShopNumber(shopDto.getShopNumber());
+        findShop1.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this shop number: %s.", shopDto.getShopNumber())));
 
         Optional<Shop> findShop2 = shopReppo.findShopByCompanyName(shopDto.getCompanyName());
         findShop2.orElseThrow(()->new ApiRequestException("There is Shop with this company name."));
@@ -164,9 +169,9 @@ public class ShopService {
         if(shop1 != shop2)
             throw  new ApiRequestException("The details entered are for different Customers.");
 
-        //Since we are searching shops with these two fields(CompanyName and PhoneNumber), it is not wise to edit them
+        //Since we are searching shops with the field (CompanyName), it is not wise to edit it
 //        shop1.setCompanyName(shopDto.getCompanyName());
-//        shop1.setPhoneNumber(shopDto.getPhoneNumber());
+        shop1.setPhoneNumber(shopDto.getPhoneNumber());
         shop1.setProductName(shopDto.getProductName());
         shop1.setPrice(shopDto.getPrice());
         shop1.setQuantity(shopDto.getQuantity());
@@ -184,11 +189,11 @@ public class ShopService {
    //(6) Method to delete shop
     public ResponsePojo<String> deleteShop(ShopDto shopDto){
 
-        Optional<Shop> findShop1 = shopReppo.findShopByPhoneNumber(shopDto.getPhoneNumber());
-        findShop1.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this Phone Number: %s", shopDto.getPhoneNumber())));
+        Optional<Shop> findShop1 = shopReppo.findByShopNumber(shopDto.getShopNumber());
+        findShop1.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this Shop Number: %s", shopDto.getShopNumber())));
 
         Optional<Shop> findShop2 = shopReppo.findShopByCompanyName(shopDto.getCompanyName());
-        findShop2.orElseThrow(()->new ApiRequestException(String.format("There is Shop with this company name : %s", shopDto.getCompanyName())));
+        findShop2.orElseThrow(()->new ApiRequestException(String.format("There is no Shop with this company name : %s", shopDto.getCompanyName())));
 
         Shop shop1 = findShop1.get();
         Shop shop2 = findShop2.get();
