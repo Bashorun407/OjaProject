@@ -11,8 +11,6 @@ public class RatingDto {
 
     private String productName;
 
-    private String customerEmail;
-
     private Long rating;
 
     private Long reviews;

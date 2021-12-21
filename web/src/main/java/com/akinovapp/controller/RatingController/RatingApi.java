@@ -5,10 +5,7 @@ import com.akinovapp.domain.entity.Rating;
 import com.akinovapp.service.responsepojo.ResponsePojo;
 import com.akinovapp.service.ratingservice.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/rating")
@@ -19,9 +16,9 @@ public class RatingApi {
 
 
     //(1) Method to input rating of Product
-    @PostMapping("/point")
-    public ResponsePojo<Rating> getRating(@RequestBody RatingDto ratingDto){
+    @PostMapping("/point/{productNumber}/{rateNumber}")
+    public ResponsePojo<Rating> getRating(@PathVariable Long productNumber, @PathVariable Long rateNumber){
 
-        return ratingService.getRating(ratingDto);
+        return ratingService.getRating(productNumber, rateNumber);
     }
 }

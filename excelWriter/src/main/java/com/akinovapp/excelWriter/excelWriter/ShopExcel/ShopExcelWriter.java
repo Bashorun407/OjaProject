@@ -107,14 +107,14 @@ public class ShopExcelWriter {
                 cell = row.createCell(1);
                 cell.setCellValue(shop.getCompanyName());
 
-                cell = row.createCell(2);
-                cell.setCellValue(shop.getProductName());
-
-                cell = row.createCell(3);
-                cell.setCellValue(shop.getPrice());
-
-                cell = row.createCell(4);
-                cell.setCellValue(shop.getQuantity());
+//                cell = row.createCell(2);
+//                cell.setCellValue(shop.getProductName());
+//
+//                cell = row.createCell(3);
+//                cell.setCellValue(shop.getPrice());
+//
+//                cell = row.createCell(4);
+//                cell.setCellValue(shop.getQuantity());
 
                 cell = row.createCell(5);
                 cell.setCellValue(shop.getPhoneNumber());

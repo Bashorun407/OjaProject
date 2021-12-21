@@ -41,39 +41,42 @@ public class ShopService {
     //(1) Method to create shop
     public ResponsePojo<Shop> createShop(ShopDto shopDto){
 
-        if(!(StringUtils.hasText(shopDto.getCompanyName())) && !(StringUtils.hasText(shopDto.getProductName())))
-            throw new ApiRequestException("Company-name and Product-name is required to create a Shop...ensure to input both.");
+//        if(!(StringUtils.hasText(shopDto.getCompanyName())) && !(StringUtils.hasText(shopDto.getProductName())))
+//            throw new ApiRequestException("Company-name and Product-name is required to create a Shop...ensure to input both.");
+
+        if(StringUtils.hasText(shopDto.getCompanyName()))
+            throw new ApiRequestException("Company Name is required to create a Shop");
 
         Shop shop = new Shop();//Shop Object
-        Product product = new Product();//Product Object
+        //Product product = new Product();//Product Object
 
         shop.setCompanyName(shopDto.getCompanyName());
-        product.setCompanyName(shopDto.getCompanyName());
+        //product.setCompanyName(shopDto.getCompanyName());
 
-        shop.setProductName(shopDto.getProductName());
-        product.setProductName(shopDto.getProductName());
+//        shop.setProductName(shopDto.getProductName());
+        //product.setProductName(shopDto.getProductName());
 
         shop.setShopNumber(new Date().getTime());
 
-        product.setProductNumber(new Date().getTime());
+        //product.setProductNumber(new Date().getTime());
 
-        shop.setPrice(shopDto.getPrice());
-        product.setPrice(shopDto.getPrice());
+//        shop.setPrice(shopDto.getPrice());
+        //product.setPrice(shopDto.getPrice());
 
-        shop.setQuantity(shopDto.getQuantity());
-        product.setQuantity(shopDto.getQuantity());
+//        shop.setQuantity(shopDto.getQuantity());
+        //product.setQuantity(shopDto.getQuantity());
 
         shop.setPhoneNumber(shopDto.getPhoneNumber());
 
         shop.setDateListed(new Date());
-        product.setDateListed(new Date());
+        //product.setDateListed(new Date());
 
         shop.setCountry(shopDto.getCountry());
         shop.setDeletedStatus(false);
-        product.setDeleteStatus(false);
+        //product.setDeleteStatus(false);
 
         shopReppo.save(shop); //Saving shop details into its repository
-        productReppo.save(product);  //Saving product into its repository
+        //productReppo.save(product);  //Saving product into its repository
 
         ResponsePojo<Shop> responsePojo = new ResponsePojo<>();
         responsePojo.setData(shop);
@@ -126,8 +129,8 @@ public class ShopService {
         if(StringUtils.hasText(companyName))
             predicate.and(qShop.companyName.likeIgnoreCase("%s" + companyName + "%s"));
 
-        if(StringUtils.hasText(prodName))
-            predicate.and(qShop.productName.likeIgnoreCase("%s" + prodName + "%s"));
+//        if(StringUtils.hasText(prodName))
+//            predicate.and(qShop.productName.likeIgnoreCase("%s" + prodName + "%s"));
 
         if(StringUtils.hasText(country))
             predicate.and(qShop.country.likeIgnoreCase("%s" + country + "%s"));
@@ -172,9 +175,9 @@ public class ShopService {
         //Since we are searching shops with the field (CompanyName), it is not wise to edit it
 //        shop1.setCompanyName(shopDto.getCompanyName());
         shop1.setPhoneNumber(shopDto.getPhoneNumber());
-        shop1.setProductName(shopDto.getProductName());
-        shop1.setPrice(shopDto.getPrice());
-        shop1.setQuantity(shopDto.getQuantity());
+//        shop1.setProductName(shopDto.getProductName());
+//        shop1.setPrice(shopDto.getPrice());
+//        shop1.setQuantity(shopDto.getQuantity());
         shop1.setCountry(shopDto.getCountry());
 
         shopReppo.save(shop1);//Saving the detail into the database

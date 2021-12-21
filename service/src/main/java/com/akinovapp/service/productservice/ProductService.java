@@ -3,6 +3,8 @@ package com.akinovapp.service.productservice;
 import com.akinovapp.domain.dao.ProductDto;
 import com.akinovapp.domain.entity.Product;
 import com.akinovapp.domain.entity.QProduct;
+import com.akinovapp.domain.entity.Shop;
+import com.akinovapp.repository.ShopReppo;
 import com.akinovapp.service.exception.ApiRequestException;
 import com.akinovapp.service.responsepojo.ResponsePojo;
 import com.akinovapp.repository.ProductReppo;
@@ -30,6 +32,9 @@ public class ProductService {
     private ProductReppo productReppo;
 
     @Autowired
+    private ShopReppo shopReppo;
+
+    @Autowired
     private EntityManager entityManager;//For QueryDSL
 
     /*
@@ -37,29 +42,51 @@ public class ProductService {
        ***THAT IS WHY METHOD 1 WAS COMMENTED OUT****
      */
 
+    /*
+    **** PRODUCT HAS WILL BE INITIATED HERE IN THE PRODUCT SERVICE CLASS****
+    **** ONLY IT WILL BE ADDED TO THE SPECIFIED SHOP'S PRODUCT LIST
+     */
+
+
 //    //(1) Method to create a Product
-//    public ResponsePojo<Product> createProduct(ProductDto productDto){
-//
-//        if(!StringUtils.hasText(productDto.getProductName()))
-//            throw new ApiRequestException("Product requires a name to be created....");
-//
-//        Product product = new Product();
-//        product.setProductName(productDto.getProductName());//*
-//        product.setProductNumber(new Date().getTime());
-//        product.setPrice(productDto.getPrice());//*
-//        product.setQuantity(productDto.getQuantity());//*
-//        product.setCompanyName(productDto.getCompanyName());//*
-//        product.setDateListed(new Date());
-//        product.setDeleteStatus(false);
-//
-//        productReppo.save(product);
-//
-//        ResponsePojo<Product> responsePojo = new ResponsePojo<>();
-//        responsePojo.setData(product);
-//        responsePojo.setMessage("Product successfully created");
-//
-//        return responsePojo;
-//    }
+    public ResponsePojo<Product> createProduct(ProductDto productDto){
+
+        //To check that Product name is included
+        if(!StringUtils.hasText(productDto.getProductName()))
+            throw new ApiRequestException("Product requires a name to be created....");
+
+        //Finding the shop specified by the new product in the shop's repository
+        Optional<Shop> findShop = shopReppo.findShopByCompanyName(productDto.getCompanyName());
+        findShop.orElseThrow(()-> new ApiRequestException("There is no Shop with this Company Name."));
+
+        Product product = new Product();
+        product.setProductName(productDto.getProductName());
+        product.setProductNumber(new Date().getTime());
+        product.setPrice(productDto.getPrice());
+        product.setQuantity(productDto.getQuantity());
+        product.setCompanyName(productDto.getCompanyName());
+        product.setDateListed(new Date());
+        product.setDeleteStatus(false);
+
+        productReppo.save(product);
+
+        //Creating a new shop object from a shop saved in the Shop's repository
+        Shop shop = findShop.get();
+        //Creating a list 'variable' and initializing it with the contents of the product list(Products) found in the shop repository
+        List<Product> productList = shop.getProducts();
+        //This is where the new product is added to the products list...I don't know if this will work yet
+        productList.add(product);
+        //The product is fully added to the Shop's products(products list)
+        shop.setProducts(productList);
+        //The change is saved into the repository
+        shopReppo.save(shop);
+
+        ResponsePojo<Product> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(product);
+        responsePojo.setMessage("Product successfully created");
+
+        return responsePojo;
+    }
 
 
     //(2) Method to get a specific Product by Id

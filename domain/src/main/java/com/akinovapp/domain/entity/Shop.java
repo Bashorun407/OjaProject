@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Entity(name = "Oja-Shop")
@@ -17,17 +18,17 @@ public class Shop {
     @Column(name = "Company_Name", nullable = false)
     private String companyName;
 
-    @Column(name = "Product_Name", nullable = false)
-    private String productName;
+//    @Column(name = "Product_Name", nullable = false)
+//    private String productName;
 
     @Column(name = "Shop_Number", unique = true, nullable = false)
     private Long shopNumber;
 
-    @Column(name = "Price", nullable = false)
-    private Long price;
+//    @Column(name = "Price", nullable = false)
+//    private Long price;
 
-    @Column(name = "Quantity_Available", nullable = false)
-    private Long quantity;
+//    @Column(name = "Quantity_Available", nullable = false)
+//    private Long quantity;
 
     @Column(name = "Phone_Number")
     private Long phoneNumber;
@@ -40,4 +41,8 @@ public class Shop {
 
     @Column(name = "Deleted_Status")
     private Boolean deletedStatus;
+
+    @OneToMany
+    @Column(name = "Product_List")
+    private List<Product> products;
 }

@@ -94,8 +94,8 @@ public class RatingExcelWriter {
                 cell = row.createCell(2);
                 cell.setCellValue(rating.getProductName());
 
-                cell = row.createCell(3);
-                cell.setCellValue(rating.getCustomerEmail());
+//                cell = row.createCell(3);
+//                cell.setCellValue(rating.getCustomerEmail());
 
                 cell = row.createCell(4);
                 cell.setCellValue(rating.getRating());

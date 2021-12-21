@@ -11,6 +11,7 @@ import com.akinovapp.repository.ProductReppo;
 import com.akinovapp.repository.RatingReppo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -28,42 +29,51 @@ public class RatingService {
     private CustomerReppo customerReppo;
 
     //(1) Method to input rating of Product
-    public ResponsePojo<Rating> getRating(RatingDto ratingDto){
+    public ResponsePojo<Rating> getRating(Long productNumber, Long rateNumber){
 
-
-        Optional<Product> getProduct1 = productReppo.findByProductName(ratingDto.getProductName());
-        getProduct1.orElseThrow(()-> new ApiRequestException("No Product has this Product-Name"));
-
-        Optional<Product> getProduct2 = productReppo.findProductByProductNumber(ratingDto.getProductNumber());
+        Optional<Product> getProduct2 = productReppo.findProductByProductNumber(productNumber);
         getProduct2.orElseThrow(()-> new ApiRequestException("No Product has this Product-Number"));
 
-        Optional<Customer> getCustomer = customerReppo.findByEmail(ratingDto.getCustomerEmail());
-        getCustomer.orElseThrow(()->new ApiRequestException("No Customer has this email address."));
-
-        Product p1 = getProduct1.get();
-        Product p2 = getProduct2.get();
-        Customer c1 = getCustomer.get();
-
-        if(p1 != p2)
-            throw new ApiRequestException("Product-Name and Product-Number entered are for different Products");
+        Optional<Rating> getRatingObj = ratingReppo.findRatingByProductNumber(productNumber);
 
         //Initializing Rating variables
-        Rating rate = new Rating();
+        Product p2 = getProduct2.get();
 
-        rate.setProductName(p1.getProductName());
-        rate.setProductNumber(p1.getProductNumber());
-        rate.setCustomerEmail(c1.getEmail());
+        Rating rateObj = getRatingObj.get();
+        long count = 1;
+        Long num;
+        //Conditional to check  if a product has not been given a rating or review before
+        if(ObjectUtils.isEmpty(getRatingObj.get())){
 
-        rate.setReviews(rate.getReviews()+1);
+            rateObj.setProductName(p2.getProductName());
+            rateObj.setProductNumber(p2.getProductNumber());
+            //To set number of Review to 1...since this is the first review of the Product
+            rateObj.setReviews(count);
 
-        Long num= function.apply(ratingDto);
+            //To implement the first Rating of the Product
+            num= function.apply(rateNumber);
+            rateObj.setRating(num);
 
-        rate.setRating(rate.getRating() + num);
+            //To save the change to the repository
+           ratingReppo.save(rateObj);
 
-        ratingReppo.save(rate);
+        }
+
+        //Conditional to check  if a product has been given a rating or review before
+        if(!ObjectUtils.isEmpty(getRatingObj.get())){
+            //To increment review of Product
+            rateObj.setReviews(rateObj.getReviews() + count);
+
+            //To implement rating of Product
+            num = function.apply(rateNumber);
+            rateObj.setRating(rateObj.getRating() + num);
+
+            //To save the change to the repository
+            ratingReppo.save(rateObj);
+        }
 
         ResponsePojo<Rating> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(rate);
+        responsePojo.setData(rateObj);
         responsePojo.setMessage("Rating accepted.");
 
         return responsePojo;
@@ -71,10 +81,10 @@ public class RatingService {
     }
 
 
-    //Class function to sort out rating of pupils
-    Function<RatingDto, Long> function = p ->{
+    //Class function to sort out rating of Product
+    Function<Long, Long> function = p ->{
 
-        Long rate = p.getRating();
+        Long rate = p;
 
         if(rate==5)
             return rate;

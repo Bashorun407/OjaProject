@@ -89,7 +89,7 @@ public class TransactionService {
             customerReppo.save(customer3);
 
             //Effecting changes in Quantity of Product available in Shop
-            shop.setQuantity(shop.getQuantity() - quantity);
+//            shop.setQuantity(shop.getQuantity() - quantity);
             shopReppo.save(shop);
 
             //Effecting the change in the Quantity of Product available

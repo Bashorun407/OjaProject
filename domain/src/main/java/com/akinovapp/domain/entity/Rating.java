@@ -19,9 +19,6 @@ public class Rating {
     @Column(name = "Product_Name")
     private String productName;
 
-    @Column(name = "Customer_Email")
-    private String customerEmail;
-
     @Column(name = "Rating")
     private Long rating;
 

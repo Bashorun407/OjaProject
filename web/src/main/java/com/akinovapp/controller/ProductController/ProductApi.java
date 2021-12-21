@@ -20,13 +20,13 @@ public class ProductApi {
     private ProductService productService;
 
     //***** METHOD 1 IS NOT NEEDED BECAUSE SERVICE HAS BEEN INITIATED IN THE SHOPAPI CLASS
-//
-//    //(1) Method to create a Product
-//    @PostMapping("/createProduct")
-//    public ResponsePojo<Product> createProduct(@RequestBody ProductDto productDto){
-//
-//        return productService.createProduct(productDto);
-//    }
+
+    //(1) Method to create a Product
+    @PostMapping("/createProduct")
+    public ResponsePojo<Product> createProduct(@RequestBody ProductDto productDto){
+
+        return productService.createProduct(productDto);
+    }
 
 
     //(2) Method to get a specific Product by Id
