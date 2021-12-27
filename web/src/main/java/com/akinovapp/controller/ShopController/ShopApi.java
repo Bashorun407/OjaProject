@@ -41,13 +41,12 @@ public class ShopApi {
 
     //(4) Method to search for a company based on certain products they sell...just trying it out
     @GetMapping("/searchShop")
-    public ResponsePojo<List<Shop>> searchShop (@RequestParam(name = "companyName", required = false) String companyName,
-                                                @RequestParam(name = "productName", required = false) String productName,
+    public ResponsePojo<Page<Shop>> searchShop (@RequestParam(name = "companyName", required = false) String companyName,
                                                 @RequestParam(name = "shopNumber", required = false) Long shopNumber,
                                                 @RequestParam(name = "country", required = false) String country,
                                                 Pageable pageable){
 
-        return shopService.searchShop(companyName, productName, shopNumber, country, pageable);
+        return shopService.searchShop(companyName, shopNumber, country, pageable);
     }
 
     //(5) Method to update Shop

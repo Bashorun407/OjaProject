@@ -27,7 +27,7 @@ public class ProductExcelWriter {
             if(productList.isEmpty())
                 throw new FileNotFoundException("Product Repository is empty");
 
-        String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\ProductExcel\\Book1.xlsx";
+        String filePath = ".\\Book2.xlsx";
         if(StringUtils.hasText(filePath))
             throw new FileNotFoundException(" File specified is not found");
 
@@ -126,8 +126,8 @@ public class ProductExcelWriter {
 
             //Writing the data into the file location on the Output Stream
             workbook.write(outputStream);
-            outputStream.close();
-            workbook.close();
+//            outputStream.close();
+//            workbook.close();
 
             System.out.println("Product Excel file is written successfully");
 

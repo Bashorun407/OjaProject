@@ -38,6 +38,11 @@ public class CustomerService {
         if(!StringUtils.hasText(customerDto.getFirstName()))
             throw new ApiRequestException("First Name is needed to profile customer.");
 
+        Optional<Customer> findCustomer = customerReppo.findByEmail(customerDto.getEmail());
+        if(!ObjectUtils.isEmpty(findCustomer))
+            throw new ApiRequestException(String.format("Customer with this email address: %s exists, use another email address",
+                    customerDto.getEmail()));
+
         Customer customer = new Customer();
         customer.setFirstName(customerDto.getFirstName());
         customer.setLastName(customerDto.getLastName());
@@ -94,21 +99,21 @@ public class CustomerService {
     }
 
     //(4) Search with QueryDSL
-    public ResponsePojo<List<Customer>> searchCustomers(String firstName, String lastName, Long customerNumber,  String country,Pageable pageable){
+    public ResponsePojo<Page<Customer>> searchCustomers(String firstName, String lastName, Long customerNumber,  String country,Pageable pageable){
 
         QCustomer qCustomer = QCustomer.customer;
         BooleanBuilder predicate = new BooleanBuilder();
 
         if(StringUtils.hasText(firstName))
-            predicate.and(qCustomer.firstName.likeIgnoreCase("%s" + firstName + "%s"));
+            predicate.and(qCustomer.firstName.likeIgnoreCase("%" + firstName + "%"));
 
 
         if(StringUtils.hasText(lastName))
-            predicate.and(qCustomer.lastName.likeIgnoreCase("%s" + lastName + "%s"));
+            predicate.and(qCustomer.lastName.likeIgnoreCase("%" + lastName + "%"));
 
 
         if(StringUtils.hasText(country))
-            predicate.and(qCustomer.country.likeIgnoreCase("%s" + country + "%s"));
+            predicate.and(qCustomer.country.likeIgnoreCase("%" + country + "%"));
 
         if(!ObjectUtils.isEmpty(customerNumber))
             predicate.and(qCustomer.customerNumber.eq(customerNumber));
@@ -120,12 +125,12 @@ public class CustomerService {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-       // Page<Customer> customerPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.fetchCount());
+       Page<Customer> customerPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.fetchCount());
 
-        List<Customer> customerList = jpaQuery.fetch();
+        //List<Customer> customerList = jpaQuery.fetch();
 
-        ResponsePojo<List<Customer>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(customerList);
+        ResponsePojo<Page<Customer>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(customerPage);
         responsePojo.setMessage("List found!!");
 
         return responsePojo;

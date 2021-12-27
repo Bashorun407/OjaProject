@@ -26,7 +26,7 @@ public class ShopExcelWriter {
             if(shopList.isEmpty())
                 throw new FileNotFoundException("There is no shop in the repository.");
 
-            String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\ShopExcel\\Book1.xlsx";
+            String filePath = ".\\Book4.xlsx";
             FileOutputStream outputStream = new FileOutputStream(filePath);
 
             //Creating an Excel file workbook
@@ -61,39 +61,29 @@ public class ShopExcelWriter {
             sheet.autoSizeColumn(1);
 
             cell = row.createCell(2);
-            cell.setCellValue("Product Name");
+            cell.setCellValue("Shop Number");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(2);
 
             cell = row.createCell(3);
-            cell.setCellValue("Price");
+            cell.setCellValue("Phone Number");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(3);
 
             cell = row.createCell(4);
-            cell.setCellValue("Quantity");
+            cell.setCellValue("Date Listed");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(4);
 
             cell = row.createCell(5);
-            cell.setCellValue("Phone Number");
+            cell.setCellValue("Country");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(5);
 
             cell = row.createCell(6);
-            cell.setCellValue("Date Listed");
-            cell.setCellStyle(cellStyle);
-            sheet.autoSizeColumn(6);
-
-            cell = row.createCell(7);
-            cell.setCellValue("Country");
-            cell.setCellStyle(cellStyle);
-            sheet.autoSizeColumn(7);
-
-            cell = row.createCell(8);
             cell.setCellValue("Delete Status");
             cell.setCellStyle(cellStyle);
-            sheet.autoSizeColumn(8);
+            sheet.autoSizeColumn(6);
 
             //USING FOR LOOP to write the contents of the ShopList to the specified file location
             int rowCount = 1;
@@ -107,32 +97,26 @@ public class ShopExcelWriter {
                 cell = row.createCell(1);
                 cell.setCellValue(shop.getCompanyName());
 
-//                cell = row.createCell(2);
-//                cell.setCellValue(shop.getProductName());
-//
-//                cell = row.createCell(3);
-//                cell.setCellValue(shop.getPrice());
-//
-//                cell = row.createCell(4);
-//                cell.setCellValue(shop.getQuantity());
+                cell = row.createCell(2);
+                cell.setCellValue(shop.getShopNumber());
 
-                cell = row.createCell(5);
+                cell = row.createCell(3);
                 cell.setCellValue(shop.getPhoneNumber());
 
-                cell = row.createCell(6);
+                cell = row.createCell(4);
                 cell.setCellValue(shop.getDateListed());
 
-                cell = row.createCell(7);
+                cell = row.createCell(5);
                 cell.setCellValue(shop.getCountry());
 
-                cell = row.createCell(8);
+                cell = row.createCell(6);
                 cell.setCellValue(shop.getDeletedStatus());
             }
 
             //writing to specified location
             workbook.write(outputStream);
-            outputStream.close();
-            workbook.close();
+//            outputStream.close();
+//            workbook.close();
 
             System.out.println(" Shop Excel File written successfully");
         }

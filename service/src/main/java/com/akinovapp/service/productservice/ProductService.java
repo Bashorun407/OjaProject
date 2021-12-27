@@ -3,7 +3,9 @@ package com.akinovapp.service.productservice;
 import com.akinovapp.domain.dao.ProductDto;
 import com.akinovapp.domain.entity.Product;
 import com.akinovapp.domain.entity.QProduct;
+import com.akinovapp.domain.entity.Rating;
 import com.akinovapp.domain.entity.Shop;
+import com.akinovapp.repository.RatingReppo;
 import com.akinovapp.repository.ShopReppo;
 import com.akinovapp.service.exception.ApiRequestException;
 import com.akinovapp.service.responsepojo.ResponsePojo;
@@ -12,7 +14,6 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -35,17 +36,10 @@ public class ProductService {
     private ShopReppo shopReppo;
 
     @Autowired
+    private RatingReppo ratingReppo;
+
+    @Autowired
     private EntityManager entityManager;//For QueryDSL
-
-    /*
-       **** PRODUCT HAS BEEN INITIATED IN THE SHOP CLASS ****
-       ***THAT IS WHY METHOD 1 WAS COMMENTED OUT****
-     */
-
-    /*
-    **** PRODUCT HAS WILL BE INITIATED HERE IN THE PRODUCT SERVICE CLASS****
-    **** ONLY IT WILL BE ADDED TO THE SPECIFIED SHOP'S PRODUCT LIST
-     */
 
 
 //    //(1) Method to create a Product
@@ -59,7 +53,9 @@ public class ProductService {
         Optional<Shop> findShop = shopReppo.findShopByCompanyName(productDto.getCompanyName());
         findShop.orElseThrow(()-> new ApiRequestException("There is no Shop with this Company Name."));
 
-        Product product = new Product();
+        Product product = new Product();//Object of Product
+        Rating rating = new Rating();//Object of Rating
+
         product.setProductName(productDto.getProductName());
         product.setProductNumber(new Date().getTime());
         product.setPrice(productDto.getPrice());
@@ -69,6 +65,10 @@ public class ProductService {
         product.setDeleteStatus(false);
 
         productReppo.save(product);
+
+        rating.setProductName(product.getProductName());//Instantiating Product Name for Rating
+        rating.setProductNumber(product.getProductNumber());//Instantiating Product Number for Rating
+        ratingReppo.save(rating);//saving the details of Rating in the repository through ratingReppo.
 
         //Creating a new shop object from a shop saved in the Shop's repository
         Shop shop = findShop.get();
@@ -120,17 +120,17 @@ public class ProductService {
     }
 
     //(4) Method to search for Products based on given criteria
-    public ResponsePojo<List<Product>> searchProduct(String item, Long productNum, Pageable pageable){
+    public ResponsePojo<Page<Product>> searchProduct(String productName, String companyName, Long productNum, Pageable pageable){
         QProduct qProduct = QProduct.product;
         BooleanBuilder predicate = new BooleanBuilder();
 
-        if(StringUtils.hasText(item))
-            predicate.and(qProduct.productName.likeIgnoreCase("%s" + item + "%s"));
+        if(StringUtils.hasText(productName))
+            predicate.and(qProduct.productName.likeIgnoreCase("%" + productName + "%"));
 
-        if(StringUtils.hasText(item))
-            predicate.and(qProduct.companyName.likeIgnoreCase("%s" + item + "%s"));
+        if(StringUtils.hasText(companyName))
+            predicate.and(qProduct.companyName.likeIgnoreCase("%" + companyName + "%"));
 
-        if(ObjectUtils.isEmpty(productNum))
+        if(!ObjectUtils.isEmpty(productNum))
             predicate.and(qProduct.productNumber.eq(productNum));
 
 
@@ -141,11 +141,11 @@ public class ProductService {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        //Page<Product> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
-        List<Product> result = jpaQuery.fetch();
+        Page<Product> productPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.fetchCount());
+        //List<Product> result = jpaQuery.fetch();
 
-        ResponsePojo<List<Product>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(result);
+        ResponsePojo<Page<Product>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(productPage);
         responsePojo.setMessage("Items Search successful!!");
 
         return  responsePojo;

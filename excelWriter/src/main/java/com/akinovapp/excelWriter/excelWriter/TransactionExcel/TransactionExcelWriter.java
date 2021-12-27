@@ -26,7 +26,7 @@ public class TransactionExcelWriter {
             if(transactionList.isEmpty())
                 throw new FileNotFoundException("There is no record of any transaction yet.");
 
-            String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\TransactionExcel\\Book1.xlsx";
+            String filePath = ".\\Book5.xlsx";
 
             FileOutputStream outputStream = new FileOutputStream(filePath);
 
@@ -130,8 +130,8 @@ public class TransactionExcelWriter {
 
             //Workbook writing the data into the outputstream
             workbook.write(outputStream);
-            outputStream.close();
-            workbook.close();
+//            outputStream.close();
+//            workbook.close();
 
             System.out.println("Transaction Excel File Written Successfully");
 

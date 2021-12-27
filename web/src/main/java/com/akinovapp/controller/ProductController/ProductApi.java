@@ -44,12 +44,13 @@ public class ProductApi {
     }
 
     //(4) Method to search for Products based on given criteria
-    @GetMapping("/search/item")
-    public ResponsePojo<List<Product>> searchProduct(@RequestParam(name = "item", required = false) String item,
+    @GetMapping("/searchItem")
+    public ResponsePojo<Page<Product>> searchProduct(@RequestParam(name = "item", required = false) String productName,
+                                                     @RequestParam(name = "companyName", required = false) String companyName,
                                                      @RequestParam(name = "productNumber", required = false) Long productNum,
                                                      Pageable pageable){
 
-        return productService.searchProduct(item, productNum, pageable);
+        return productService.searchProduct(productName, companyName, productNum, pageable);
     }
 
     //(5) Method to update Product

@@ -47,9 +47,6 @@ public class TransactionService {
         Optional<Shop> findShop = shopReppo.findShopByCompanyName(companyName);
         findShop.orElseThrow(()-> new ApiRequestException("There is no Shop with this name."));
 
-//        //Getting Customer detail from Customer Repository through customerId...but this gives a null pointer exception all the time
-//        Optional<Customer> findCustomer = customerReppo.findById(customerId);
-//        findCustomer.orElseThrow(()-> new ApiRequestException("There is no Customer with this ID"));
 
         //Getting Customer detail from Customer Repository through customer's Last name.
         Optional<Customer> findCustomer3 = customerReppo.findByLastName(lastName);

@@ -1,17 +1,12 @@
 package com.akinovapp.service.ratingservice;
 
-import com.akinovapp.domain.dao.RatingDto;
-import com.akinovapp.domain.entity.Customer;
-import com.akinovapp.domain.entity.Product;
 import com.akinovapp.domain.entity.Rating;
 import com.akinovapp.service.exception.ApiRequestException;
 import com.akinovapp.service.responsepojo.ResponsePojo;
-import com.akinovapp.repository.CustomerReppo;
-import com.akinovapp.repository.ProductReppo;
+
 import com.akinovapp.repository.RatingReppo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -22,55 +17,44 @@ public class RatingService {
     @Autowired
     private RatingReppo ratingReppo;
 
-    @Autowired
-    private ProductReppo productReppo;
-
-    @Autowired
-    private CustomerReppo customerReppo;
-
     //(1) Method to input rating of Product
     public ResponsePojo<Rating> getRating(Long productNumber, Long rateNumber){
 
-        Optional<Product> getProduct2 = productReppo.findProductByProductNumber(productNumber);
-        getProduct2.orElseThrow(()-> new ApiRequestException("No Product has this Product-Number"));
+        Optional<Rating> getRating = ratingReppo.findRatingByProductNumber(productNumber);
+        getRating.orElseThrow(()-> new ApiRequestException("No Product has this Product-Number"));
 
-        Optional<Rating> getRatingObj = ratingReppo.findRatingByProductNumber(productNumber);
+        //To check that the rateNumber provided is from 1 - 5
+        if(rateNumber<1 && rateNumber>5)
+            throw new ApiRequestException("Rate Number is out of bounds...select from 1 - 5");
 
         //Initializing Rating variables
-        Product p2 = getProduct2.get();
+        Rating rateObj = getRating.get();
 
-        Rating rateObj = getRatingObj.get();
+        //Setting variables
         long count = 1;
         Long num;
-        //Conditional to check  if a product has not been given a rating or review before
-        if(ObjectUtils.isEmpty(getRatingObj.get())){
+        Long review = rateObj.getReviews();
 
-            rateObj.setProductName(p2.getProductName());
-            rateObj.setProductNumber(p2.getProductNumber());
-            //To set number of Review to 1...since this is the first review of the Product
+        //For New Rating of a particular product
+        if(review==null) {
             rateObj.setReviews(count);
-
             //To implement the first Rating of the Product
             num= function.apply(rateNumber);
             rateObj.setRating(num);
 
-            //To save the change to the repository
-           ratingReppo.save(rateObj);
-
         }
 
-        //Conditional to check  if a product has been given a rating or review before
-        if(!ObjectUtils.isEmpty(getRatingObj.get())){
-            //To increment review of Product
+        //For Continuous rating of a particular product
+        if(review!=null){
             rateObj.setReviews(rateObj.getReviews() + count);
 
-            //To implement rating of Product
-            num = function.apply(rateNumber);
+            //To implement the first Rating of the Product
+            num= function.apply(rateNumber);
             rateObj.setRating(rateObj.getRating() + num);
+        }
 
             //To save the change to the repository
-            ratingReppo.save(rateObj);
-        }
+            ratingReppo.save(rateObj);//Saves all the implementations
 
         ResponsePojo<Rating> responsePojo = new ResponsePojo<>();
         responsePojo.setData(rateObj);

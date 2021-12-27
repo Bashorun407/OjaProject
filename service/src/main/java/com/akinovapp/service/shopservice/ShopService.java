@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.querydsl.core.QueryModifiers.offset;
+
 @Service
 public class ShopService {
 
@@ -41,42 +43,24 @@ public class ShopService {
     //(1) Method to create shop
     public ResponsePojo<Shop> createShop(ShopDto shopDto){
 
-//        if(!(StringUtils.hasText(shopDto.getCompanyName())) && !(StringUtils.hasText(shopDto.getProductName())))
-//            throw new ApiRequestException("Company-name and Product-name is required to create a Shop...ensure to input both.");
 
-        if(StringUtils.hasText(shopDto.getCompanyName()))
+        if(!StringUtils.hasText(shopDto.getCompanyName()))
             throw new ApiRequestException("Company Name is required to create a Shop");
 
         Shop shop = new Shop();//Shop Object
-        //Product product = new Product();//Product Object
 
         shop.setCompanyName(shopDto.getCompanyName());
-        //product.setCompanyName(shopDto.getCompanyName());
-
-//        shop.setProductName(shopDto.getProductName());
-        //product.setProductName(shopDto.getProductName());
 
         shop.setShopNumber(new Date().getTime());
-
-        //product.setProductNumber(new Date().getTime());
-
-//        shop.setPrice(shopDto.getPrice());
-        //product.setPrice(shopDto.getPrice());
-
-//        shop.setQuantity(shopDto.getQuantity());
-        //product.setQuantity(shopDto.getQuantity());
 
         shop.setPhoneNumber(shopDto.getPhoneNumber());
 
         shop.setDateListed(new Date());
-        //product.setDateListed(new Date());
 
         shop.setCountry(shopDto.getCountry());
         shop.setDeletedStatus(false);
-        //product.setDeleteStatus(false);
 
         shopReppo.save(shop); //Saving shop details into its repository
-        //productReppo.save(product);  //Saving product into its repository
 
         ResponsePojo<Shop> responsePojo = new ResponsePojo<>();
         responsePojo.setData(shop);
@@ -121,19 +105,16 @@ public class ShopService {
     }
 
     //(4) Method to search for a company based on certain products they sell...just trying it out
-    public ResponsePojo<List<Shop>> searchShop (String companyName, String prodName, Long shopNumber, String country, Pageable pageable){
+    public ResponsePojo<Page<Shop>> searchShop (String companyName, Long shopNumber, String country, Pageable pageable){
 
         QShop qShop = QShop.shop;
         BooleanBuilder predicate = new BooleanBuilder();
 
         if(StringUtils.hasText(companyName))
-            predicate.and(qShop.companyName.likeIgnoreCase("%s" + companyName + "%s"));
-
-//        if(StringUtils.hasText(prodName))
-//            predicate.and(qShop.productName.likeIgnoreCase("%s" + prodName + "%s"));
+            predicate.and(qShop.companyName.likeIgnoreCase("%" + companyName + "%"));
 
         if(StringUtils.hasText(country))
-            predicate.and(qShop.country.likeIgnoreCase("%s" + country + "%s"));
+            predicate.and(qShop.country.likeIgnoreCase("%" + country + "%"));
 
         if(!ObjectUtils.isEmpty(shopNumber))
             predicate.and(qShop.shopNumber.eq(shopNumber));
@@ -141,16 +122,16 @@ public class ShopService {
         JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
         JPAQuery<Shop> jpaQuery = jpaQueryFactory.selectFrom(qShop)
                 .where(predicate.and(qShop.deletedStatus.eq(false)))
-              .orderBy(qShop.Id.asc());
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize());
+              .orderBy(qShop.Id.asc())
+              .offset(pageable.getOffset())
+              .limit(pageable.getPageSize());
 
         //This Page<Shop> is not working as it should...that is why I commented it out.
-       // Page<Shop> shopPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
-        List<Shop> shopList = jpaQuery.fetch();
+        Page<Shop> shopPage = new PageImpl<>(jpaQuery.fetch(), pageable, jpaQuery.stream().count());
+        //List<Shop> shopList = jpaQuery.fetch();
 
-        ResponsePojo<List<Shop>> responsePojo = new ResponsePojo<>();
-        responsePojo.setData(shopList);
+        ResponsePojo<Page<Shop>> responsePojo = new ResponsePojo<>();
+        responsePojo.setData(shopPage);
         responsePojo.setMessage("Here is the list of shops");
 
         return responsePojo;
@@ -170,21 +151,16 @@ public class ShopService {
 
         //Checking that the correct Customer detail is gotten
         if(shop1 != shop2)
-            throw  new ApiRequestException("The details entered are for different Customers.");
+            throw  new ApiRequestException("The details entered are for different Shops.");
 
-        //Since we are searching shops with the field (CompanyName), it is not wise to edit it
-//        shop1.setCompanyName(shopDto.getCompanyName());
         shop1.setPhoneNumber(shopDto.getPhoneNumber());
-//        shop1.setProductName(shopDto.getProductName());
-//        shop1.setPrice(shopDto.getPrice());
-//        shop1.setQuantity(shopDto.getQuantity());
         shop1.setCountry(shopDto.getCountry());
 
         shopReppo.save(shop1);//Saving the detail into the database
 
         ResponsePojo<Shop> responsePojo = new ResponsePojo<>();
         responsePojo.setData(shop1);
-        responsePojo.setMessage("Customer detail successfully updated.");
+        responsePojo.setMessage("Shop detail successfully updated.");
 
         return responsePojo;
     }
@@ -203,27 +179,14 @@ public class ShopService {
 
         //Checking that the correct Customer detail is gotten
         if(shop1 != shop2)
-            throw  new ApiRequestException("The details entered are for different Customers.");
+            throw  new ApiRequestException("The details entered are for different Shops.");
 
         shop1.setDeletedStatus(true);//...does not really delete the shop....but only changes the Shop's deletedStatus
-
-        //To set the delete status of all products in the deleted shop as deleted too....using QUERY DSL
-        QProduct qProduct = QProduct.product;
-
-        JPAQueryFactory jpaQueryFactory = new JPAQueryFactory(entityManager);
-        JPAQuery<Product> jpaQuery = jpaQueryFactory.selectFrom(qProduct)
-                        .where(qProduct.companyName.eq(shop2.getCompanyName()));
-
-        List<Product> companyProducts = jpaQuery.fetch();
-        companyProducts.stream().map(x->{
-            x.setDeleteStatus(true);
-            productReppo.save(x);//To save the change into the productReppo repository
-       return x; });//...I dont know if this will work...I want to be able to set the deletedStatus of each record in this category as false
 
         shopReppo.save(shop1);//Saving the detail into the database
 
         ResponsePojo<String> responsePojo = new ResponsePojo<>();
-        responsePojo.setMessage("Customer detail successfully deleted.");
+        responsePojo.setMessage("Shop detail successfully deleted.");
 
         return responsePojo;
 

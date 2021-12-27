@@ -16,8 +16,8 @@ public class RatingApi {
 
 
     //(1) Method to input rating of Product
-    @PostMapping("/point/{productNumber}/{rateNumber}")
-    public ResponsePojo<Rating> getRating(@PathVariable Long productNumber, @PathVariable Long rateNumber){
+    @PostMapping("/point/{productNumber}")
+    public ResponsePojo<Rating> getRating(@PathVariable Long productNumber, Long rateNumber){
 
         return ratingService.getRating(productNumber, rateNumber);
     }

@@ -25,7 +25,7 @@ public class CustomerExcelWriter {
         try {
             List<Customer> customerList = customerReppo.findAll();
 
-            String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\excelWriter\\CustomerExcel\\Book1.xlsx";
+            String filePath = ".\\Book1.xlsx";
 
             //To check that the filePath is valid
             if(!StringUtils.hasText(filePath))
@@ -71,34 +71,39 @@ public class CustomerExcelWriter {
             sheet.autoSizeColumn(2);
 
             cell = row.createCell(3);
-            cell.setCellValue("Email Address");
+            cell.setCellValue("Customer Number");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(3);
 
             cell = row.createCell(4);
-            cell.setCellValue("Phone Number");
+            cell.setCellValue("Email Address");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(4);
 
             cell = row.createCell(5);
-            cell.setCellValue("Account Balance");
+            cell.setCellValue("Phone Number");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(5);
 
             cell = row.createCell(6);
-            cell.setCellValue("Country");
+            cell.setCellValue("Account Balance");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(6);
 
             cell = row.createCell(7);
-            cell.setCellValue("Deleted Status");
+            cell.setCellValue("Country");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(7);
 
             cell = row.createCell(8);
-            cell.setCellValue("Date Created");
+            cell.setCellValue("Deleted Status");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(8);
+
+            cell = row.createCell(9);
+            cell.setCellValue("Date Created");
+            cell.setCellStyle(cellStyle);
+            sheet.autoSizeColumn(9);
 
 
             //USINIG FOR LOOP TO ACCESS AND PRINT THE CONTENTS OF THE CUSTOMER TABLE
@@ -120,27 +125,30 @@ public class CustomerExcelWriter {
                 cell.setCellValue(customer.getLastName());
 
                 cell = row.createCell(3);
-                cell.setCellValue(customer.getEmail());
+                cell.setCellValue(customer.getCustomerNumber());
 
                 cell = row.createCell(4);
-                cell.setCellValue(customer.getPhoneNumber());
+                cell.setCellValue(customer.getEmail());
 
                 cell = row.createCell(5);
-                cell.setCellValue(customer.getAccountBalance());
+                cell.setCellValue(customer.getPhoneNumber());
 
                 cell = row.createCell(6);
-                cell.setCellValue(customer.getCountry());
+                cell.setCellValue(customer.getAccountBalance());
 
                 cell = row.createCell(7);
-                cell.setCellValue(customer.getDeletedStatus());
+                cell.setCellValue(customer.getCountry());
 
                 cell = row.createCell(8);
+                cell.setCellValue(customer.getDeletedStatus());
+
+                cell = row.createCell(9);
                 cell.setCellValue(customer.getDateCreated());
 
                 //Writing the data into the file location on the Output Stream
                 workbook.write(fileOutputStream);
-                fileOutputStream.close();
-                workbook.close();
+//                fileOutputStream.close();
+//                workbook.close();
 
                 System.out.println("Customer Excel File is successfully Written");
             }

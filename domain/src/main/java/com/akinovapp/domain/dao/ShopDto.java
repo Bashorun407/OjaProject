@@ -14,13 +14,7 @@ public class ShopDto {
 
     private String companyName;
 
-//    private String productName;
-
     private Long shopNumber;
-
-//    private Long price;
-//
-//    private Long quantity;
 
     private Long phoneNumber;
 

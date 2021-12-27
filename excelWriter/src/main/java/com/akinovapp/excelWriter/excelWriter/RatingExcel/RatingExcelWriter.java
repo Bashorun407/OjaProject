@@ -27,7 +27,7 @@ public class RatingExcelWriter {
             if(ratingList.isEmpty())
                 throw new FileNotFoundException("There are no rating yet.");
 
-            String filePath = "C:\\Users\\Akinbobola Oluwaseyi\\Desktop\\Oja\\excelWriter\\src\\main\\java\\com\\akinovapp\\excelWriter\\RatingExcel\\Book1.xlsx";
+            String filePath = ".\\Book3.xlsx";
 
             FileOutputStream outputStream = new FileOutputStream(filePath);
 
@@ -64,19 +64,14 @@ public class RatingExcelWriter {
             sheet.autoSizeColumn(2);
 
             cell = row.createCell(3);
-            cell.setCellValue("Customer Email");
+            cell.setCellValue("Rating");
             cell.setCellStyle(cellStyle);
             sheet.autoSizeColumn(3);
 
             cell = row.createCell(4);
-            cell.setCellValue("Rating");
-            cell.setCellStyle(cellStyle);
-            sheet.autoSizeColumn(4);
-
-            cell = row.createCell(5);
             cell.setCellValue("Reviews");
             cell.setCellStyle(cellStyle);
-            sheet.autoSizeColumn(5);
+            sheet.autoSizeColumn(4);
 
             //Using FOR LOOP to print the contents of RatingList to the specified filePath
             int rowCount = 1;
@@ -94,21 +89,18 @@ public class RatingExcelWriter {
                 cell = row.createCell(2);
                 cell.setCellValue(rating.getProductName());
 
-//                cell = row.createCell(3);
-//                cell.setCellValue(rating.getCustomerEmail());
-
-                cell = row.createCell(4);
+                cell = row.createCell(3);
                 cell.setCellValue(rating.getRating());
 
-                cell = row.createCell(5);
+                cell = row.createCell(4);
                 cell.setCellValue(rating.getReviews());
 
             }
 
             //Workbook writing the data to the outputStream
             workbook.write(outputStream);
-            outputStream.close();
-            workbook.close();
+//            outputStream.close();
+//            workbook.close();
 
             System.out.println("Rating Excel File Written Successfully");
 
